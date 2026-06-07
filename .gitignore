@@ -1,0 +1,16 @@
+# Build artifacts
+/build/
+build*/
+*.o
+*.obj
+*.out
+
+# Output files produced by the solver
+out.obj
+out_params.txt
+*_params.txt
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
