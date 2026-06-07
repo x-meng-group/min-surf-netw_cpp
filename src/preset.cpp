@@ -247,17 +247,19 @@ Preset makeBifurcation(double r) {
 }
 
 // Trifurcation: 2 junctions (vertices 1,2) + 4 terminals (vertices 3,4,5,6).
-// Transcription of the Mathematica "5C_trifur" preset.
+// Analogue of the Mathematica "5C_trifur" preset.  The two junctions are 3-way
+// (each meets three edges) exactly like the bifurcation's single junction, so
+// this mirrors that proven structure: a central junction-to-junction edge plus
+// two spread-out terminals branching off each junction (a symmetric double-Y).
+// Cross-sections are vertical bigons (z offset) and twists are zero, matching
+// the bifurcation that converges to round tubes.
 Preset makeTrifurcation(double lengthScale) {
     Preset p;
     p.name = "trifurcation";
     p.nVertices = 6;
     p.edgeList = {{1, 2}, {1, 3}, {1, 4}, {2, 5}, {2, 6}};
-    p.edgeLengthList = {lengthScale * 0.21189150337889065, lengthScale * 0.9428090586300827,
-                        lengthScale * 0.9428090293980586, lengthScale * 0.9428089948307695,
-                        lengthScale * 0.9428090768876431};
     p.edgeWidthList = {2 * PI, 2 * PI, 2 * PI, 2 * PI, 2 * PI};
-    p.edgeTwistList = {-PI / 2, 0, 0, 0, 0};
+    p.edgeTwistList = {0.0, 0.0, 0.0, 0.0, 0.0};
 
     p.vertexPolyLines = {{{1, 2}, {1, 2}, {1, 2}}, {{1, 2}, {1, 2}, {1, 2}},
                          {{1, 2}, {1, 2}},         {{1, 2}, {1, 2}},
@@ -268,22 +270,31 @@ Preset makeTrifurcation(double lengthScale) {
                                 {{2, -1}},                   {{2, -1}}};
     p.vertexPolyConnectionsByEdgeN = {{1, 2, 3}, {-1, 4, 5}, {-2}, {-3}, {-4}, {-5}};
 
-    const double A = p.edgeLengthList[0] * 0.21189150337889065;
-    const Vec3 off1{-0.9068996626793956, 0.0, -1.2825498439064011};
-    const Vec3 off2{0.0, PI / 2, 0.0};
+    // In-plane layout (z = 0), scaled by lengthScale; vertical bigon cross-section.
+    const double s = lengthScale;
+    const Vec3 zc{0, 0, PI / 2};
     auto pair = [](const Vec3& base, const Vec3& off) {
         return std::vector<Vec3>{base + off, base - off};
     };
     p.vertexPolyCoordinates = {
-        pair(A * Vec3{-0.08650435183876184, 0.0, 0.06116778125033389}, off1),
-        pair(A * Vec3{0.08650433267907832, 0.0, -0.06116782884333942}, off2),
-        pair(A * Vec3{-2.0 / 9, -2.0 / 3, 1.0 / 3}, off1),
-        pair(A * Vec3{-2.0 / 9, 2.0 / 3, 1.0 / 3}, off1),
-        pair(A * Vec3{8.0 / 9, 0.0, 1.0 / 3}, off2),
-        pair(A * Vec3{0.0, 0.0, -1.0}, off2),
+        pair(s * Vec3{-1.5, 0.0, 0.0}, zc),  // junction 1
+        pair(s * Vec3{1.5, 0.0, 0.0}, zc),   // junction 2
+        pair(s * Vec3{-4.0, 2.5, 0.0}, zc),  // terminal off junction 1
+        pair(s * Vec3{-4.0, -2.5, 0.0}, zc), // terminal off junction 1
+        pair(s * Vec3{4.0, 2.5, 0.0}, zc),   // terminal off junction 2
+        pair(s * Vec3{4.0, -2.5, 0.0}, zc),  // terminal off junction 2
     };
     p.vertexPolyIsTerminals = {false, false, true, true, true, true};
+
     fillStraightPaths(p);
+    // Edge "lengths" follow the straight-line distance between the connected
+    // vertex centers (sets each tube's mesh resolution along its axis).
+    p.edgeLengthList.resize(p.numEdges());
+    for (int e = 0; e < p.numEdges(); ++e) {
+        const Vec3 a = meanCoords(p.vertexPolyCoordinates[p.edgeList[e][0] - 1]);
+        const Vec3 b = meanCoords(p.vertexPolyCoordinates[p.edgeList[e][1] - 1]);
+        p.edgeLengthList[e] = norm(b - a);
+    }
     p.validate();
     return p;
 }

@@ -52,6 +52,6 @@ std::string presetToJson(const Preset& p);
 //   bifurcation  : 1 junction + 3 terminals (4 vertices, 3 edges)
 //   trifurcation : 2 junctions + 4 terminals (6 vertices, 5 edges)
 Preset makeBifurcation(double widthBimodalRatio = 1.0);
-Preset makeTrifurcation(double lengthScale = 5.0);
+Preset makeTrifurcation(double lengthScale = 1.0);
 
 }  // namespace msn
