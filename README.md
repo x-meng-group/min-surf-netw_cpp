@@ -1,4 +1,4 @@
-# min-surf-netw-cpp
+# min-surf-netw_cpp
 
 A dependency-free C++17 port of the [min-surf-netw](https://github.com/x-meng-group/min-surf-netw)
 Mathematica framework, which constructs and optimizes the geometry of physical
